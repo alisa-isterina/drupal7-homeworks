@@ -1,0 +1,207 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ * 
+ * @return array()
+ */
+function home_work_1_menu() {
+  $menu = array();
+  
+  $menu['training/menu'] = array(
+    'page callback' => 'training_menu_html',
+    'title' => t('Training Landing Page'),
+    'access callback' => TRUE,
+    'file' => 'home_work_1.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+    'expanded' => TRUE,
+  );
+  // Access --------------------------------------------------------------------
+  $menu['training/menu/custom_access'] = array(
+    'page callback' => 'training_menu_custom_access_html',
+    'title' => t('Custom Access Menu Item'),
+    'access callback' => 'home_work_1_custom_access',
+    'access arguments' => array('authenticated user', ),
+    'file' => 'home_work_1.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $menu['training/menu/permissioned'] = array(
+    'page callback' => 'training_menu_permissioned_html',
+    'title' => t('Permissioned Menu Item'),
+    'access arguments' => array('access protected menu example', ),
+    'file' => 'home_work_1.pages.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  // Callback ------------------------------------------------------------------
+  $menu['training/menu/callback'] = array(
+    'page callback' => 'training_menu_callback_html',
+    'access callback' => TRUE,
+    'file' => 'home_work_1.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+  // Tabs ----------------------------------------------------------------------
+  $menu['training/menu/tabs'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'training_menu_tabs_html',
+    'title' => t('Tabs'),
+    'file' => 'home_work_1.pages.inc',
+    'access callback' => TRUE,
+  );
+  $tabs = array(
+    t('second') => 1, 
+    t('third') => 2, 
+    t('fourth') => 3,
+  );
+  foreach ($tabs as $tabname => $weight) {
+    $menu["training/menu/tabs/{$tabname}"] = array(
+      'type' => MENU_LOCAL_TASK,
+      'title' => $tabname,
+      'page callback' => '_training_menu_tabs_html',
+      'page arguments' => array(
+        t('This is the tab "@tabname" in the "basic tabs" example', 
+            array('@tabname' => $tabname))
+      ),
+      'access callback' => TRUE,
+      'file' => 'home_work_1.pages.inc',
+      'weight' => $weight,
+    );
+  }
+  $tabs_secondary = array(
+    t('second') => 1, 
+    t('third') => 2,
+  );
+  $tab_keys = array_keys($tabs);
+  foreach ($tabs_secondary as $tabname => $weight) {
+    $menu["training/menu/tabs/{$tab_keys[0]}/{$tabname}"] = array(
+      'type' => MENU_LOCAL_TASK,
+      'title' => $tabname,
+      'page callback' => '_training_menu_tabs_html',
+      'page arguments' => array(
+        t('This is the secondary tab "@tabname" in the "basic tabs" example "default" tab', 
+            array('@tabname' => $tabname))
+      ),
+      'access callback' => TRUE,
+      'file' => 'home_work_1.pages.inc',
+      'weight' => $weight,
+    );
+  }
+  // Arguments -----------------------------------------------------------------
+  $menu['training/menu/arguments'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => t('Arguments'),
+    'page callback' => 'training_menu_arguments_html',
+    'page arguments' => array(3, 4, ),
+    'file' => 'home_work_1.pages.inc',
+    'access callback' => TRUE,
+  );
+  $menu['training/menu/placeholder/%/display'] = array(
+    'title' => 'Dynamic address',
+    'page callback' => 'training_menu_placeholder_display_html',
+    'page arguments' => array(3, ),
+    'access callback' => TRUE,
+    'file' => 'home_work_1.pages.inc',
+  );
+  $menu['training/menu/default_arg/%argument'] = array(
+    'title' => 'Argument handler',
+    'page callback' => 'training_menu_default_arg_html',
+    'page arguments' => array(3, ),
+    'file' => 'home_work_1.pages.inc',
+    'access callback' => TRUE,
+  );
+  // Dynamic title -------------------------------------------------------------
+  $menu['training/menu/title'] = array(
+    'title callback' => '_training_menu_title_callback',
+    'access callback' => TRUE,
+  );
+  // Item in main menu ---------------------------------------------------------
+  $menu['training/menu/main'] = array(
+    'title' => t("Item in main menu"),
+    'menu_name' => 'main-menu',
+    'access callback' => TRUE,
+  );
+  // Theme ---------------------------------------------------------------------
+  $menu['training/theme'] = array(
+    'title' => "Theme",
+    'page callback' => 'training_theme_html',
+    'file' => 'home_work_1.pages.inc',
+    'access callback' => TRUE,
+  );
+  
+  $theme_pages = array(
+    'list' => t('List'), 
+    'table' => t('Table'), 
+    'image' => t('Image'), 
+    'access' => t('Access')
+  );
+  foreach($theme_pages as $page => $title) {
+    $menu["training/theme/{$page}"] = array(
+      'page callback' => "theme_page_html",
+      'page arguments' => array(2, ),
+      'title' => $title,
+      'file' => 'home_work_1.pages.inc',
+      'access callback' => TRUE,
+    );
+//    if($page == 'access') {
+//      $menu["training/theme/{$page}"]['access arguments'] = array('access protected content', );
+//    } else {
+//      $menu["training/theme/{$page}"]['access callback'] = TRUE;
+//    }
+  }
+  
+  return $menu;
+}
+
+/**
+ * @param string $role_name
+ * @return bool
+ */
+function home_work_1_custom_access($role_name) {
+  $access_granted = in_array($role_name, $GLOBALS['user']->roles);
+  return $access_granted;
+}
+
+/**
+ * Implements hook_permission().
+ * 
+ * @return array()
+ */
+function home_work_1_permission() {
+  $permission = array(
+    'access protected menu example' => array(
+      'title' => 'Permission to access protected training pages',
+    ),
+    'access protected content' => array(
+      'title' => 'Permission to access proreceted content',
+    ),
+  );
+  return $permission;
+}
+
+/**
+ * @param string $argument
+ * @return string
+ */
+function argument_load($argument) {
+  $values = array(
+    '1' => 'one', 
+    '2' => 'two', 
+    '3' => 'three', 
+    '99' => 'Almost there', 
+  );
+
+  $value = null;
+  if(isset($values[$argument])) {
+    $value = $values[$argument];
+  }
+  
+  return $value;
+}
+
+/**
+ * @return string
+ */
+function _training_menu_title_callback() {
+  global $user;
+  $username = !empty($user->name) ? $user->name : t('anonymous');
+  return t('Dynamic title: username=@username', array("@username" => $username));
+}
