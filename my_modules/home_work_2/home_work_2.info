@@ -1,0 +1,5 @@
+name = Home work 2
+description = Work with blocks and modification forms
+core = 7.x
+package = Home work
+dependencies[] = block
