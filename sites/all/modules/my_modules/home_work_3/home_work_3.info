@@ -1,5 +1,0 @@
-name = Home work 3
-description = Files, libraries
-core = 7.x
-package = Home work
-dependencies[] = ctools
